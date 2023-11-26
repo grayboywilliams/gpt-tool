@@ -18,7 +18,7 @@ To run the GPT Training Tool, follow these steps:
 
 ### Start the Application
 
-1. Run the main script:
+Run the main script:
 
     ```shell
     python app.py
