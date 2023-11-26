@@ -1,0 +1,17 @@
+{
+    "batch_size": 32,
+    "block_size": 8,
+
+    "num_batch": 100,
+    "num_head": 6,
+    "num_layer": 6,
+    "num_dim": 30,
+
+    "learning_rate": 1e-3,
+    "dropout": 0.2,
+
+    "eval_interval": 20,
+    "eval_iters": 10,
+
+    "torch_seed": 1337
+}
