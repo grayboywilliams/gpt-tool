@@ -27,9 +27,9 @@ To run the GPT Training Tool, follow these steps:
 ### Endpoints
 
 The application exposes the following endpoints...
-    - `\generate`: returns generation
-    - `\complete`: returns completion from prompt
-    - `\train`: trains the model
-    - `\evaluate`: evaluates the current loss on the test dataset
-    - `\save_parameters`: saves the current model weights
-    - `\load_parameters`: loads the model weights from checkpoint name
+- `\generate`: returns generation
+- `\complete`: returns completion from prompt
+- `\train`: trains the model
+- `\evaluate`: evaluates the current loss on the test dataset
+- `\save_parameters`: saves the current model weights
+- `\load_parameters`: loads the model weights from checkpoint name
