@@ -2,9 +2,9 @@
     "batch_size": 50,
     "block_size": 128,
 
+    "num_dim": 30,
     "num_head": 6,
     "num_layer": 6,
-    "num_dim": 30,
     
     "learning_rate": 1e-3,
     "dropout": 0.2,
@@ -12,6 +12,8 @@
     "num_batch": 5000,
     "eval_interval": 100,
     "eval_iters": 50,
+    "val_split": 0.1,
+    "test_split": 0.1,
     
     "torch_seed": 1337,
 

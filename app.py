@@ -80,7 +80,7 @@ def complete_prompt():
 # Evaluate
 @app.route('/evaluate', methods=['GET'])
 def evaluate_model():
-    losses = model.estimate_loss()
+    losses = model.estimate_loss(True)
     return jsonify({'loss': float(f"{losses['test']:.4f}")})
 
 # Save parameters

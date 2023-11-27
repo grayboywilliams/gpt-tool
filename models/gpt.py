@@ -58,12 +58,12 @@ class GPTLanguageModel(nn.Module):
         start_time = time.time()
         for iter in range(self.params.num_batch):
 
-            # every once in a while evaluate the loss on train and test sets
+            # every once in a while evaluate the loss on train and val sets
             if iter % self.params.eval_interval == 0:
                 losses = self.estimate_loss()
                 elapsed_time = time.time() - start_time
                 elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-                print(f"step {iter}: train loss {losses['train']:.4f}, test loss {losses['test']:.4f}, time {elapsed_time_str}")
+                print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}, time {elapsed_time_str}")
 
             # sample a batch of data
             xb, yb = self.dataset.get_batch('train')
@@ -75,9 +75,10 @@ class GPTLanguageModel(nn.Module):
             self.optimizer.step()
 
     @torch.no_grad()
-    def estimate_loss(self):
+    def estimate_loss(self, test=False):
         out = {}
-        for stage in ['train', 'test']:
+        stages = ['train', 'val'] if test == False else ['test']
+        for stage in stages:
             losses = torch.zeros(self.params.eval_iters)
             for k in range(self.params.eval_iters):
                 X, Y = self.dataset.get_batch(stage)

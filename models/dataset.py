@@ -14,7 +14,7 @@ class Dataset():
         self.vocab_size = len(self.tokens)
         self.encode = self.get_encoder()
         self.decode = self.get_decoder()
-        self.train_data, self.test_data = self.split_data()
+        self.train_data, self.val_data, self.test_data = self.split_data(self.params.val_split, self.params.test_split)
 
     def get_data(self, get_data=False):
         if get_data or os.path.isfile(self.filename) == False:
@@ -34,15 +34,17 @@ class Dataset():
         itos = { i:ch for i,ch in enumerate(self.tokens) }
         return lambda l: ''.join([itos[i] for i in l]) 
 
-    def split_data(self, split=0.9):
+    def split_data(self, val_split, test_split):
         data = torch.tensor(self.encode(self.data), dtype=torch.long)
-        n = int(split*len(data))
-        train_data = data[:n]
-        test_data = data[n:]
-        return train_data, test_data
+        v = int((1-(val_split+test_split))*len(data))
+        t = int((1-test_split)*len(data))
+        train_data = data[:v]
+        val_data = data[v:t]
+        test_data = data[t:]
+        return train_data, val_data, test_data
 
     def get_batch(self, stage='train'):
-        data = self.train_data if stage == 'train' else self.test_data
+        data = self.train_data if stage == 'train' else self.val_data if stage == 'val' else self.test_data
         ix = torch.randint(len(data) - self.params.block_size, (self.params.batch_size,))
         x = torch.stack([data[i:i+self.params.block_size] for i in ix])
         y = torch.stack([data[i+1:i+self.params.block_size+1] for i in ix])
