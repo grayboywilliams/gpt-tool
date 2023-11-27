@@ -33,7 +33,6 @@ def train_model():
     model.begin_train()
     return jsonify({'status': 'Complete.'})
 
-
 # Update config
 @app.route('/update_config', methods=['POST'])
 def update_config():

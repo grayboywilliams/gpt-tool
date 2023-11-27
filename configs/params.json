@@ -1,6 +1,6 @@
 {
     "batch_size": 50,
-    "block_size": 128,
+    "ctx_length": 128,
 
     "num_dim": 30,
     "num_head": 6,

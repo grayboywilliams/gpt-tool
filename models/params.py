@@ -10,8 +10,12 @@ class Hyperparameters():
         with open(config_path, 'r') as f:
             config = json.load(f)
 
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.torch_seed = config['torch_seed']
+        torch.manual_seed(self.torch_seed)
+
         self.batch_size = config['batch_size']
-        self.block_size = config['block_size']
+        self.ctx_length = config['ctx_length']
 
         self.num_dim = config['num_dim']
         self.num_head = config['num_head']
@@ -32,8 +36,3 @@ class Hyperparameters():
         self.training_data_url = data_source['training_data_url']
         self.training_data_name = data_source['training_data_name']
         self.checkpoint_name = data_source['checkpoint_name']
-
-        self.torch_seed = config['torch_seed']
-        torch.manual_seed(self.torch_seed)
-
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

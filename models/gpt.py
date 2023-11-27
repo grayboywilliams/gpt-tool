@@ -16,7 +16,7 @@ class GPTLanguageModel(nn.Module):
 
         # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(self.dataset.vocab_size, self.params.num_dim)
-        self.position_embedding_table = nn.Embedding(params.block_size, self.params.num_dim)
+        self.position_embedding_table = nn.Embedding(params.ctx_length, self.params.num_dim)
         self.blocks = nn.Sequential(*[Block(self.params) for _ in range(self.params.num_layer)])
         self.ln_f = nn.LayerNorm(self.params.num_dim) # final layer norm
         self.lm_head = nn.Linear(self.params.num_dim, self.dataset.vocab_size)
@@ -97,8 +97,8 @@ class GPTLanguageModel(nn.Module):
 
         # ctx is (B, T) array of indices in the current context
         for _ in range(tokens):
-            # crop ctx to the last block_size tokens
-            idx_cond = ctx[:, -self.params.block_size:]
+            # crop ctx to the last ctx_length tokens
+            idx_cond = ctx[:, -self.params.ctx_length:]
             # get the predictions
             logits, _ = self(idx_cond)
             # focus only on the last time step

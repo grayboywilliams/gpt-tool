@@ -45,9 +45,9 @@ class Dataset():
 
     def get_batch(self, stage='train'):
         data = self.train_data if stage == 'train' else self.val_data if stage == 'val' else self.test_data
-        ix = torch.randint(len(data) - self.params.block_size, (self.params.batch_size,))
-        x = torch.stack([data[i:i+self.params.block_size] for i in ix])
-        y = torch.stack([data[i+1:i+self.params.block_size+1] for i in ix])
+        ix = torch.randint(len(data) - self.params.ctx_length, (self.params.batch_size,))
+        x = torch.stack([data[i:i+self.params.ctx_length] for i in ix])
+        y = torch.stack([data[i+1:i+self.params.ctx_length+1] for i in ix])
         x, y = x.to(self.params.device), y.to(self.params.device)
         return x, y
 
