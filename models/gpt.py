@@ -1,3 +1,4 @@
+import time
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -54,12 +55,15 @@ class GPTLanguageModel(nn.Module):
         return logits, loss
     
     def begin_train(self):
+        start_time = time.time()
         for iter in range(self.params.num_batch):
 
             # every once in a while evaluate the loss on train and test sets
             if iter % self.params.eval_interval == 0:
                 losses = self.estimate_loss()
-                print(f"step {iter}: train loss {losses['train']:.4f}, test loss {losses['test']:.4f}")
+                elapsed_time = time.time() - start_time
+                elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+                print(f"step {iter}: train loss {losses['train']:.4f}, test loss {losses['test']:.4f}, time {elapsed_time_str}")
 
             # sample a batch of data
             xb, yb = self.dataset.get_batch('train')
@@ -116,14 +120,20 @@ class GPTLanguageModel(nn.Module):
         output = self.generate(tokens, ctx)
         return output[len(prompt):]
 
-    def save_parameters(self, name):
-        filename = os.path.join(self.script_dir, '../checkpoints', name + '.pth')
+    def save_parameters(self, name=None):
+        if name != None:
+            self.params.checkpoint_name = name
+
+        filename = os.path.join(self.script_dir, '../checkpoints', self.params.checkpoint_name)
         torch.save(self.state_dict(), filename)
         return 'Model parameters saved successfully.'
 
-    def load_parameters(self, name):
+    def load_parameters(self, name=None):
         try:
-            filename = os.path.join(self.script_dir, '../checkpoints', name + '.pth')
+            if name != None:
+                self.params.checkpoint_name = name
+
+            filename = os.path.join(self.script_dir, '../checkpoints', self.params.checkpoint_name)
             self.load_state_dict(torch.load(filename))
             self.eval()  # Set the model to evaluation mode after loading
             return 'Model parameters loaded successfully.'

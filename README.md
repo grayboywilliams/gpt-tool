@@ -33,3 +33,4 @@ The application exposes the following endpoints...
 - `\evaluate`: evaluates the current loss on the test dataset
 - `\save_parameters`: saves the current model weights
 - `\load_parameters`: loads the model weights from checkpoint name
+- `\update_config`: patches the config file (re-inits model)

@@ -1,17 +1,31 @@
 {
-    "batch_size": 32,
-    "block_size": 8,
+    "batch_size": 50,
+    "block_size": 128,
 
-    "num_batch": 100,
     "num_head": 6,
     "num_layer": 6,
     "num_dim": 30,
-
+    
     "learning_rate": 1e-3,
     "dropout": 0.2,
+    
+    "num_batch": 5000,
+    "eval_interval": 100,
+    "eval_iters": 50,
+    
+    "torch_seed": 1337,
 
-    "eval_interval": 20,
-    "eval_iters": 10,
-
-    "torch_seed": 1337
+    "data_source": 0,
+    "data_sources": [
+        {
+            "training_data_url": "https://www.gutenberg.org/cache/epub/10/pg10.txt",
+            "training_data_name": "kingjames.txt",
+            "checkpoint_name": "kingjames.pth"
+        },
+        {
+            "training_data_url": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
+            "training_data_name": "shakespeare.txt",
+            "checkpoint_name": "shakespeare.pth"
+        }
+    ]
 }

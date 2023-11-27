@@ -3,12 +3,18 @@ from models.params import *
 from models.dataset import *
 from models.gpt import *
 
+params: Hyperparameters
+dataset: Dataset
+model: GPTLanguageModel
+
 app = Flask(__name__)
 
 # Initialize GPT model
-params = Hyperparameters()
-dataset = Dataset(params)
-model = GPTLanguageModel(params, dataset)
+def init_model(get_data=False):
+    global params, dataset, model
+    params = Hyperparameters()
+    dataset = Dataset(params, get_data)
+    model = GPTLanguageModel(params, dataset)
 
 # Train
 @app.route('/train', methods=['POST'])
@@ -27,11 +33,26 @@ def train_model():
     model.begin_train()
     return jsonify({'status': 'Complete.'})
 
+
+# Update config
+@app.route('/update_config', methods=['POST'])
+def update_config():
+    for key in request.json:
+        if key not in params.__dict__:
+            return jsonify({'status': 'Error: Invalid parameter.'})
+        
+    for key in request.json:
+        if key in params.__dict__:
+            params.__dict__[key] = request.json[key]
+    
+    init_model(True) # re-initialize model
+    return jsonify({'status': 'Complete.'})
+
 # Generate
 @app.route('/generate', methods=['GET'])
 def generate_text():
-    if 'length' in request.args:
-        length = request.args['length']
+    if 'length' in request.json:
+        length = request.json['length']
     else:
         length = 500
 
@@ -41,13 +62,15 @@ def generate_text():
 # Complete
 @app.route('/complete', methods=['GET'])
 def complete_prompt():
-    if 'prompt' in request.args:
-        prompt = request.args['prompt']
+    if 'prompt' in request.json:
+        if len(request.json['prompt']) > params.block_size:
+            print('Prompt exceeds context window. Only the last ' + str(params.block_size) + ' characters will be used...')
+        prompt = request.json['prompt'][-params.block_size:]
     else:
-        prompt = 'ROMEO: '
+        prompt = ''
     
-    if 'length' in request.args:
-        length = request.args['length']
+    if 'length' in request.json:
+        length = request.json['length']
     else:
         length = 500
 
@@ -58,25 +81,26 @@ def complete_prompt():
 @app.route('/evaluate', methods=['GET'])
 def evaluate_model():
     losses = model.estimate_loss()
-    return float(f"{losses['test']:.4f}")
+    return jsonify({'loss': float(f"{losses['test']:.4f}")})
 
 # Save parameters
 @app.route('/save_parameters', methods=['GET'])
 def save_parameters_route():
-    name = 'cp'
-    if 'name' in request.args:
-        name = request.args['name']
+    name = None
+    if 'name' in request.json:
+        name = request.json['name']
 
     return model.save_parameters(name)
 
 # Load parameters
 @app.route('/load_parameters', methods=['GET'])
 def load_parameters_route():
-    name = 'cp'
-    if 'name' in request.args:
-        name = request.args['name']
+    name = None
+    if 'name' in request.json:
+        name = request.json['name']
 
     return model.load_parameters(name)
 
 if __name__ == '__main__':
+    init_model()
     app.run(host='0.0.0.0', port=5000)
