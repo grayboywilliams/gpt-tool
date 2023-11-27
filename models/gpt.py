@@ -5,6 +5,9 @@ from torch.nn import functional as F
 from .params import *
 from .dataset import *
 from components.block import *
+from models.logger import *
+
+logger = configure_logger()
 
 class GPTLanguageModel(nn.Module):
 
@@ -63,7 +66,8 @@ class GPTLanguageModel(nn.Module):
                 losses = self.estimate_loss()
                 elapsed_time = time.time() - start_time
                 elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-                print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}, time {elapsed_time_str}")
+                logger.log(SUMMARY, f"step {iter}: train loss {losses['train']:.4f}, " +
+                           f"val loss {losses['val']:.4f}, time {elapsed_time_str}")
 
             # sample a batch of data
             xb, yb = self.dataset.get_batch('train')
@@ -125,18 +129,19 @@ class GPTLanguageModel(nn.Module):
 
     def save_parameters(self, name=None):
         if name != None:
-            self.params.checkpoint_name = name
+            self.params.name = name
 
-        filename = os.path.join(self.script_dir, '../checkpoints', self.params.checkpoint_name)
-        torch.save(self.state_dict(), filename)
+        filename = os.path.join(self.script_dir, '../checkpoints', name, 'checkpoint.pth')
+
+        torch.save(self.state_dict(), filename) # save weights
+        self.params.save_config() # save config
+        save_summary_log(self.params.name) # save logs
+
         return 'Model parameters saved successfully.'
 
-    def load_parameters(self, name=None):
+    def load_parameters(self, name):
         try:
-            if name != None:
-                self.params.checkpoint_name = name
-
-            filename = os.path.join(self.script_dir, '../checkpoints', self.params.checkpoint_name)
+            filename = os.path.join(self.script_dir, '../checkpoints', name, 'checkpoint.pth')
             self.load_state_dict(torch.load(filename))
             self.eval()  # Set the model to evaluation mode after loading
             return 'Model parameters loaded successfully.'

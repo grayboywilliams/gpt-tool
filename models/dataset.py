@@ -6,7 +6,7 @@ class Dataset():
     def __init__(self, params: Hyperparameters, get_data=False):
         self.params = params
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        self.filename = os.path.join(script_dir, '../training_data', params.training_data_name)
+        self.filename = os.path.join(script_dir, '../training_data', params.data_source + ".txt")
         self.source_url = params.training_data_url
 
         self.data = self.get_data(get_data)

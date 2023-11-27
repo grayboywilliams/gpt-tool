@@ -2,17 +2,20 @@ from flask import Flask, request, jsonify
 from models.params import *
 from models.dataset import *
 from models.gpt import *
+from models.logger import *
 
 params: Hyperparameters
 dataset: Dataset
 model: GPTLanguageModel
 
+logger = configure_logger()
 app = Flask(__name__)
 
 # Initialize GPT model
-def init_model(get_data=False):
+def init_model(checkpoint_name=None, get_data=False):
+    reset_summary_log()
     global params, dataset, model
-    params = Hyperparameters()
+    params = Hyperparameters(checkpoint_name)
     dataset = Dataset(params, get_data)
     model = GPTLanguageModel(params, dataset)
 
@@ -21,16 +24,17 @@ def init_model(get_data=False):
 def train_model():
     if 'num_batch' in request.json:
         params.num_batch = request.json['num_batch']
-        print('num_batch: ', params.num_batch)
+        logger.info(f'num_batch: {params.num_batch}')
     if 'eval_interval' in request.json:
         params.eval_interval = request.json['eval_interval']
-        print('eval_interval: ', params.eval_interval)
+        logger.info(f'eval_interval: {params.eval_interval}')
     if 'eval_iters' in request.json:
         params.eval_iters = request.json['eval_iters']
-        print('eval_iters: ', params.eval_iters)
+        logger.info(f'eval_iters: {params.eval_iters}')
 
-    print('Model training in progress...')
+    logger.log(SUMMARY, 'Model training in progress...')
     model.begin_train()
+    logger.log(SUMMARY, 'Model training complete.')
     return jsonify({'status': 'Complete.'})
 
 # Update config
@@ -66,7 +70,7 @@ def complete_prompt():
 
     if 'prompt' in request.json:
         if len(request.json['prompt']) > params.ctx_length:
-            print('Prompt exceeds context window. Only the last ' +
+            logger.info('Prompt exceeds context window. Only the last ' +
                   str(params.ctx_length) + ' characters will be used...')
         prompt = request.json['prompt'][-params.ctx_length:]
     
@@ -88,7 +92,7 @@ def evaluate_model():
 # Save parameters
 @app.route('/save_parameters', methods=['GET'])
 def save_parameters_route():
-    name = None
+    name = params.name
     if 'name' in request.json:
         name = request.json['name']
 
@@ -97,10 +101,11 @@ def save_parameters_route():
 # Load parameters
 @app.route('/load_parameters', methods=['GET'])
 def load_parameters_route():
-    name = None
-    if 'name' in request.json:
-        name = request.json['name']
+    if 'name' not in request.json:
+        return jsonify({'status': 'Error: Missing required parameter "name".'})
+    name = request.json['name']
 
+    init_model(name, True)
     return model.load_parameters(name)
 
 if __name__ == '__main__':

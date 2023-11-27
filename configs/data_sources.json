@@ -1,0 +1,4 @@
+{
+    "kingjames": "https://www.gutenberg.org/cache/epub/10/pg10.txt",
+    "shakespeare": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
+}
