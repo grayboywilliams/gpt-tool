@@ -88,7 +88,7 @@ class GPTLanguageModel(nn.Module):
         self.train(False)
         return out
 
-    def generate(self, tokens, ctx=None):
+    def generate(self, tokens, ctx=None, temp=1.0):
         if ctx is None:
             ctx = torch.zeros(
                 (1, 1),
@@ -103,6 +103,8 @@ class GPTLanguageModel(nn.Module):
             logits, _ = self(idx_cond)
             # focus only on the last time step
             logits = logits[:, -1, :] # becomes (B, C)
+            # apply temperature (>1 for more randomness, <1 for less randomness)
+            logits /= temp
             # apply softmax to get probabilities
             probs = F.softmax(logits, dim=-1) # (B, C)
             # sample from the distribution
@@ -112,13 +114,13 @@ class GPTLanguageModel(nn.Module):
 
         return self.dataset.decode(ctx[0].tolist())
     
-    def complete(self, prompt, tokens):
+    def complete(self, prompt, tokens, temp=1.0):
         ctx = torch.tensor(
             self.dataset.encode(prompt),
             dtype=torch.long,
             device=self.params.device).unsqueeze(0)
 
-        output = self.generate(tokens, ctx)
+        output = self.generate(tokens, ctx, temp)
         return output[len(prompt):]
 
     def save_parameters(self, name=None):

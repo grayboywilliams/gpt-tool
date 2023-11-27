@@ -50,10 +50,9 @@ def update_config():
 # Generate
 @app.route('/generate', methods=['GET'])
 def generate_text():
+    length = 500
     if 'length' in request.json:
-        length = request.json['length']
-    else:
-        length = 500
+        length = request.json['length']        
 
     output = model.generate(length)
     return jsonify({'generation': output})
@@ -61,19 +60,23 @@ def generate_text():
 # Complete
 @app.route('/complete', methods=['GET'])
 def complete_prompt():
+    prompt = ''
+    length = 500
+    temp = 1.0
+
     if 'prompt' in request.json:
-        if len(request.json['prompt']) > params.block_size:
-            print('Prompt exceeds context window. Only the last ' + str(params.block_size) + ' characters will be used...')
-        prompt = request.json['prompt'][-params.block_size:]
-    else:
-        prompt = ''
+        if len(request.json['prompt']) > params.ctx_length:
+            print('Prompt exceeds context window. Only the last ' +
+                  str(params.ctx_length) + ' characters will be used...')
+        prompt = request.json['prompt'][-params.ctx_length:]
     
     if 'length' in request.json:
         length = request.json['length']
-    else:
-        length = 500
+        
+    if 'temp' in request.json:
+        temp = request.json['temp']
 
-    output = model.complete(prompt, length)
+    output = model.complete(prompt, length, temp)
     return jsonify({'completion': output})
 
 # Evaluate

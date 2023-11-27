@@ -14,9 +14,8 @@ class Hyperparameters():
         self.torch_seed = config['torch_seed']
         torch.manual_seed(self.torch_seed)
 
-        self.batch_size = config['batch_size']
         self.ctx_length = config['ctx_length']
-
+        self.batch_size = config['batch_size']
         self.num_dim = config['num_dim']
         self.num_head = config['num_head']
         self.num_layer = config['num_layer']

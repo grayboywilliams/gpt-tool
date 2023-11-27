@@ -1,7 +1,6 @@
 {
-    "batch_size": 50,
     "ctx_length": 128,
-
+    "batch_size": 50,
     "num_dim": 30,
     "num_head": 6,
     "num_layer": 6,
