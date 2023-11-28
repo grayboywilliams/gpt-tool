@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 # Initialize GPT model
 def init_model(checkpoint_name=None, get_data=False):
-    # reset_summary_log()
+    reset_summary_log()
     global params, dataset, model
     params = Hyperparameters(checkpoint_name)
     dataset = Dataset(params, get_data)
