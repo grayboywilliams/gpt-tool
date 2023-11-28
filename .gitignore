@@ -2,4 +2,4 @@ __pycache__/*
 *.pyc
 
 training_data/*
-summary.log
+/summary.log
