@@ -1,7 +1,8 @@
 
 # GPT Training Tool
 
-This repository contains a GPT architecture adapted from Andrej Karpathy's [MiniGPT repository](https://github.com/karpathy/minGPT).
+This repository contains a GPT training tool adapted from Andrej Karpathy's [MiniGPT repository](https://github.com/karpathy/minGPT).
+The tool runs as an API and can build, train, test, store, and reload various GPT models.
 
 ## Installation
 
@@ -26,11 +27,11 @@ Run the main script:
 
 ### Endpoints
 
-The application exposes the following endpoints...
+The application exposes the following endpoints:
+- `\train`: trains the currently loaded model
+- `\update_config`: patches the config file (re-inits model)
 - `\generate`: returns generation
 - `\complete`: returns completion from prompt
-- `\train`: trains the model
-- `\evaluate`: evaluates the current loss on the test dataset
-- `\save_parameters`: saves the current model weights
-- `\load_parameters`: loads the model weights from checkpoint name
-- `\update_config`: patches the config file (re-inits model)
+- `\evaluate`: evaluates the current loss on the test data set
+- `\save_parameters`: saves the current model weights, hyperparameters, and logs
+- `\load_parameters`: loads the model weights from checkpoint
