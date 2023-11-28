@@ -10,7 +10,7 @@ dataset: Dataset
 model: GPTLanguageModel
 
 logger = configure_logger()
-app = Flask(__name__)
+app = Flask(app_name)
 
 # Initialize GPT model
 def init_model(checkpoint_name=None, get_data=False):
@@ -110,4 +110,4 @@ def load_parameters_route():
 
 if __name__ == '__main__':
     init_model()
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host=host, port=port)
