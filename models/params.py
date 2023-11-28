@@ -38,9 +38,9 @@ class Hyperparameters():
         self.num_head = config[num_head]
         self.num_layer = config[num_layer]
         self.head_size = self.num_dim // self.num_head
+        self.dropout = config[dropout]
 
         self.learning_rate = config[learning_rate]
-        self.dropout = config[dropout]
 
         self.num_batch = config[num_batch]
         self.eval_interval = config[eval_interval]
