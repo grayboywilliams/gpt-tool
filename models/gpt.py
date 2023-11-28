@@ -6,6 +6,7 @@ from .params import *
 from .dataset import *
 from components.block import *
 from models.logger import *
+from constants.constants import *
 
 class GPTLanguageModel(nn.Module):
 
@@ -69,8 +70,8 @@ class GPTLanguageModel(nn.Module):
                 losses = self.estimate_loss()
                 elapsed_time = time.time() - start_time
                 elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-                self.logger.log(SUMMARY, f"step {iter}: train loss {losses['train']:.4f}, " +
-                           f"val loss {losses['val']:.4f}, time {elapsed_time_str}")
+                self.logger.log(SUMMARY, f"step {iter}: train loss {losses[train]:.4f}, " +
+                           f"val loss {losses[val]:.4f}, time {elapsed_time_str}")
 
             # sample a batch of data
             xb, yb = self.dataset.get_batch('train')
@@ -82,12 +83,12 @@ class GPTLanguageModel(nn.Module):
             self.optimizer.step()
         
         losses = self.estimate_loss(True)
-        self.logger.log(SUMMARY, f"final: test loss {losses['test']:.4f}")
+        self.logger.log(SUMMARY, f"final: test loss {losses[test]:.4f}")
 
     @torch.no_grad()
     def estimate_loss(self, test=False):
         out = {}
-        stages = ['train', 'val'] if test == False else ['test']
+        stages = [train, val] if test == False else [test]
         for stage in stages:
             losses = torch.zeros(self.params.eval_iters)
             for k in range(self.params.eval_iters):

@@ -1,6 +1,7 @@
 import json
 import torch
 import os
+from constants.constants import *
 
 class Hyperparameters():
     def __init__(self, checkpoint_name=None):
@@ -23,29 +24,29 @@ class Hyperparameters():
         with open(data_sources_path, 'r') as f:
             data_sources = json.load(f)
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.torch_seed = config['torch_seed']
+        self.device = torch.device(cuda if torch.cuda.is_available() else cpu)
+        self.torch_seed = config[torch_seed]
         torch.manual_seed(self.torch_seed)
 
-        self.name = config['name']
-        self.data_source = config['data_source']
-        self.training_data_url = data_sources[config['data_source']]
+        self.name = config[name]
+        self.data_source = config[data_source]
+        self.training_data_url = data_sources[config[data_source]]
 
-        self.ctx_length = config['ctx_length']
-        self.batch_size = config['batch_size']
-        self.num_dim = config['num_dim']
-        self.num_head = config['num_head']
-        self.num_layer = config['num_layer']
+        self.ctx_length = config[ctx_length]
+        self.batch_size = config[batch_size]
+        self.num_dim = config[num_dim]
+        self.num_head = config[num_head]
+        self.num_layer = config[num_layer]
         self.head_size = self.num_dim // self.num_head
 
-        self.learning_rate = config['learning_rate']
-        self.dropout = config['dropout']
+        self.learning_rate = config[learning_rate]
+        self.dropout = config[dropout]
 
-        self.num_batch = config['num_batch']
-        self.eval_interval = config['eval_interval']
-        self.eval_iters = config['eval_iters']
-        self.val_split = config['val_split']
-        self.test_split = config['test_split']
+        self.num_batch = config[num_batch]
+        self.eval_interval = config[eval_interval]
+        self.eval_iters = config[eval_iters]
+        self.val_split = config[val_split]
+        self.test_split = config[test_split]
 
     def save_config(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))

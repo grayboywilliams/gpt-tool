@@ -1,6 +1,7 @@
 import torch
 import urllib.request
 from .params import *
+from constants.constants import *
 
 class Dataset():
     def __init__(self, params: Hyperparameters, get_data=False):
@@ -43,8 +44,8 @@ class Dataset():
         test_data = data[t:]
         return train_data, val_data, test_data
 
-    def get_batch(self, stage='train'):
-        data = self.train_data if stage == 'train' else self.val_data if stage == 'val' else self.test_data
+    def get_batch(self, stage=train):
+        data = self.train_data if stage == train else self.val_data if stage == val else self.test_data
         ix = torch.randint(len(data) - self.params.ctx_length, (self.params.batch_size,))
         x = torch.stack([data[i:i+self.params.ctx_length] for i in ix])
         y = torch.stack([data[i+1:i+self.params.ctx_length+1] for i in ix])

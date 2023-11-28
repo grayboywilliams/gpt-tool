@@ -3,6 +3,7 @@ from models.params import *
 from models.dataset import *
 from models.gpt import *
 from models.logger import *
+from constants.constants import *
 
 params: Hyperparameters
 dataset: Dataset
@@ -20,14 +21,14 @@ def init_model(checkpoint_name=None, get_data=False):
     model = GPTLanguageModel(logger, params, dataset)
 
 # Train
-@app.route('/train', methods=['POST'])
+@app.route('/train', methods=[POST])
 def train_model():
-    if 'num_batch' in request.json:
-        params.num_batch = request.json['num_batch']
-    if 'eval_interval' in request.json:
-        params.eval_interval = request.json['eval_interval']
-    if 'eval_iters' in request.json:
-        params.eval_iters = request.json['eval_iters']
+    if num_batch in request.json:
+        params.num_batch = request.json[num_batch]
+    if eval_interval in request.json:
+        params.eval_interval = request.json[eval_interval]
+    if eval_iters in request.json:
+        params.eval_iters = request.json[eval_iters]
 
     logger.log(SUMMARY, 'Model training in progress...')
     model.begin_train()
@@ -35,7 +36,7 @@ def train_model():
     return jsonify({'status': 'Complete.'})
 
 # Update config
-@app.route('/update_config', methods=['POST'])
+@app.route('/update_config', methods=[POST])
 def update_config():
     for key in request.json:
         if key not in params.__dict__:
@@ -49,61 +50,63 @@ def update_config():
     return jsonify({'status': 'Complete.'})
 
 # Generate
-@app.route('/generate', methods=['GET'])
+@app.route('/generate', methods=[GET])
 def generate_text():
     length = 500
-    if 'length' in request.json:
-        length = request.json['length']        
+    if length in request.json:
+        length = request.json[length]        
 
     output = model.generate(length)
     return jsonify({'generation': output})
 
 # Complete
-@app.route('/complete', methods=['GET'])
+@app.route('/complete', methods=[GET])
 def complete_prompt():
     prompt = ''
     length = 500
     temp = 1.0
 
-    if 'prompt' in request.json:
-        if len(request.json['prompt']) > params.ctx_length:
+    if prompt in request.json:
+        if len(request.json[prompt]) > params.ctx_length:
             logger.info('Prompt exceeds context window. Only the last ' +
-                  str(params.ctx_length) + ' characters will be used...')
-        prompt = request.json['prompt'][-params.ctx_length:]
+                        f"{params.ctx_length} characters will be used...")
+        prompt = request.json[prompt][-params.ctx_length:]
     
-    if 'length' in request.json:
-        length = request.json['length']
+    if length in request.json:
+        length = request.json[length]
         
-    if 'temp' in request.json:
-        temp = request.json['temp']
+    if temp in request.json:
+        temp = request.json[temp]
 
     output = model.complete(prompt, length, temp)
     return jsonify({'completion': output})
 
 # Evaluate
-@app.route('/evaluate', methods=['GET'])
+@app.route('/evaluate', methods=[GET])
 def evaluate_model():
     losses = model.estimate_loss(True)
-    return jsonify({'loss': float(f"{losses['test']:.4f}")})
+    return jsonify({'loss': float(f"{losses[test]:.4f}")})
 
 # Save parameters
-@app.route('/save_parameters', methods=['GET'])
+@app.route('/save_parameters', methods=[GET])
 def save_parameters_route():
     name = params.name
-    if 'name' in request.json:
-        name = request.json['name']
+    if name in request.json:
+        name = request.json[name]
 
-    return model.save_parameters(name)
+    status = model.save_parameters(name)
+    return jsonify({'status': status})
 
 # Load parameters
-@app.route('/load_parameters', methods=['GET'])
+@app.route('/load_parameters', methods=[GET])
 def load_parameters_route():
-    if 'name' not in request.json:
+    if name not in request.json:
         return jsonify({'status': 'Error: Missing required parameter "name".'})
-    name = request.json['name']
+    name = request.json[name]
 
     init_model(name, True)
-    return model.load_parameters(name)
+    status = model.load_parameters(name)
+    return jsonify({'status': status})
 
 if __name__ == '__main__':
     init_model()
