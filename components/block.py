@@ -1,6 +1,6 @@
 import torch.nn as nn
-from models.params import *
-from models.dataset import *
+from src.params import *
+from src.dataset import *
 from .multiheadattention import *
 from .feedforward import *
 

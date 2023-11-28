@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
-from models.params import *
-from models.dataset import *
-from models.gpt import *
-from models.logger import *
+from src.params import *
+from src.dataset import *
+from src.gpt import *
+from src.logger import *
+from src.util import *
 from constants.constants import *
 
 params: Hyperparameters
@@ -12,13 +13,41 @@ model: GPTLanguageModel
 logger = configure_logger()
 app = Flask(app_name)
 
-# Initialize GPT model
-def init_model(checkpoint_name=None, get_data=False):
-    reset_summary_log()
+# Load model
+@app.route('/load_model', methods=[GET])
+def load_model_route():
     global params, dataset, model
-    params = Hyperparameters(logger, checkpoint_name)
-    dataset = Dataset(logger, params, get_data)
-    model = GPTLanguageModel(logger, params, dataset)
+
+    if name not in request.json:
+        return jsonify({'status': 'Error: Missing required parameter "name".'})
+    name = request.json[name]
+
+    status, params, dataset, model = load_model(logger, name, True)
+    return jsonify({'status': status})
+
+# Save model
+@app.route('/save_model', methods=[GET])
+def save_model_route():
+    name = params.name
+    if name in request.json:
+        name = request.json[name]
+
+    status = save_model(model, params, name)
+    return jsonify({'status': status})
+
+# Update config
+@app.route('/update_config', methods=[POST])
+def update_config():
+    for key in request.json:
+        if key not in params.__dict__:
+            return jsonify({'status': 'Error: Invalid parameter.'})
+        
+    for key in request.json:
+        if key in params.__dict__:
+            params.__dict__[key] = request.json[key]
+    
+    init_model(True) # re-initialize model
+    return jsonify({'status': 'Complete.'})
 
 # Train
 @app.route('/train', methods=[POST])
@@ -35,19 +64,11 @@ def train_model():
     logger.log(SUMMARY, 'Model training complete.')
     return jsonify({'status': 'Complete.'})
 
-# Update config
-@app.route('/update_config', methods=[POST])
-def update_config():
-    for key in request.json:
-        if key not in params.__dict__:
-            return jsonify({'status': 'Error: Invalid parameter.'})
-        
-    for key in request.json:
-        if key in params.__dict__:
-            params.__dict__[key] = request.json[key]
-    
-    init_model(True) # re-initialize model
-    return jsonify({'status': 'Complete.'})
+# Evaluate
+@app.route('/evaluate', methods=[GET])
+def evaluate_model():
+    losses = model.estimate_loss()
+    return jsonify({'loss': float(f"{losses[test]:.4f}")})
 
 # Generate
 @app.route('/generate', methods=[GET])
@@ -81,33 +102,5 @@ def complete_prompt():
     output = model.complete(prompt, length, temp)
     return jsonify({'completion': output})
 
-# Evaluate
-@app.route('/evaluate', methods=[GET])
-def evaluate_model():
-    losses = model.estimate_loss()
-    return jsonify({'loss': float(f"{losses[test]:.4f}")})
-
-# Save parameters
-@app.route('/save_parameters', methods=[GET])
-def save_parameters_route():
-    name = params.name
-    if name in request.json:
-        name = request.json[name]
-
-    status = model.save_parameters(name)
-    return jsonify({'status': status})
-
-# Load parameters
-@app.route('/load_parameters', methods=[GET])
-def load_parameters_route():
-    if name not in request.json:
-        return jsonify({'status': 'Error: Missing required parameter "name".'})
-    name = request.json[name]
-
-    init_model(name, True)
-    status = model.load_parameters(name)
-    return jsonify({'status': status})
-
 if __name__ == '__main__':
-    init_model()
     app.run(host=host, port=port)

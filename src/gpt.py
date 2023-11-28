@@ -6,7 +6,7 @@ from torch.nn import functional as F
 from .params import *
 from .dataset import *
 from components.block import *
-from models.logger import *
+from src.logger import *
 from constants.constants import *
 
 class GPTLanguageModel(nn.Module):
@@ -74,6 +74,8 @@ class GPTLanguageModel(nn.Module):
                 self.logger.log(SUMMARY, f"step {iter}: train loss {losses[train]:.4f}, " +
                            f"val loss {losses[val]:.4f}, time {elapsed_time_str}")
 
+                self.save_parameters('temp')
+
             # sample a batch of data
             inputs, targets = self.dataset.get_batch('train')
 
@@ -135,23 +137,3 @@ class GPTLanguageModel(nn.Module):
 
         output = self.generate(max_tokens, ctx, temp)
         return output[len(prompt):]
-
-    def save_parameters(self, name=None):
-        if name != None:
-            self.params.name = name
-
-        filename = os.path.join(self.script_dir, '../checkpoints', name, 'checkpoint.pth')
-
-        torch.save(self.state_dict(), filename) # save weights
-        self.params.save_config() # save config
-        save_summary_log(self.params.name) # save logs
-
-        return 'Model parameters saved successfully.'
-
-    def load_parameters(self, name):
-        try:
-            filename = os.path.join(self.script_dir, '../checkpoints', name, 'checkpoint.pth')
-            self.load_state_dict(torch.load(filename)) # load weights
-            return 'Model parameters loaded successfully.'
-        except FileNotFoundError:
-            return 'Model parameters file not found.'

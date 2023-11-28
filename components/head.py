@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from models.params import *
-from models.dataset import *
+from src.params import *
+from src.dataset import *
 
 class Head(nn.Module):
     """ Single head of self-attention """

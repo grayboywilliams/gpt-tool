@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from models.params import *
-from models.dataset import *
+from src.params import *
+from src.dataset import *
 from .head import *
 
 class MultiHeadAttention(nn.Module):

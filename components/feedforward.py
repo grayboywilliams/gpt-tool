@@ -1,6 +1,6 @@
 import torch.nn as nn
-from models.params import *
-from models.dataset import *
+from src.params import *
+from src.dataset import *
 
 class FeedFoward(nn.Module):
     """ Simple linear layer followed by a non-linearity """
