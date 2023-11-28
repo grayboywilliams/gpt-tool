@@ -1,6 +1,5 @@
 
 import os
-import shutil
 import logging
 
 # Custom log levels
@@ -21,7 +20,7 @@ def configure_logger():
     logger.setLevel(logging.DEBUG)  # Set the minimum log level for the logger
 
     # Create a formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
 
     # Create a console handler for displaying logs in the console
     console_handler = logging.StreamHandler()
@@ -35,7 +34,7 @@ def configure_logger():
     file_handler.addFilter(SummaryFilter()) # Add the filter
 
     # Add the handlers to the logger
-    # logger.addHandler(console_handler)
+    logger.addHandler(console_handler)
     logger.addHandler(file_handler)
     
     return logger
@@ -44,10 +43,8 @@ def reset_summary_log():
     open(file_path, 'w').close()
 
 def save_summary_log(name):
-    checkpoint_path = os.path.join('../checkpoints', name, 'summary.log')
-
-    if not os.path.exists(checkpoint_path):
-        os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+    checkpoint_path = os.path.join(script_dir, '../checkpoints', name, 'summary.log')
+    os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
 
     with open(file_path, "r") as source_file:
         source_contents = source_file.read()

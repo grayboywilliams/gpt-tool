@@ -13,24 +13,21 @@ app = Flask(__name__)
 
 # Initialize GPT model
 def init_model(checkpoint_name=None, get_data=False):
-    reset_summary_log()
+    # reset_summary_log()
     global params, dataset, model
     params = Hyperparameters(checkpoint_name)
     dataset = Dataset(params, get_data)
-    model = GPTLanguageModel(params, dataset)
+    model = GPTLanguageModel(logger, params, dataset)
 
 # Train
 @app.route('/train', methods=['POST'])
 def train_model():
     if 'num_batch' in request.json:
         params.num_batch = request.json['num_batch']
-        logger.info(f'num_batch: {params.num_batch}')
     if 'eval_interval' in request.json:
         params.eval_interval = request.json['eval_interval']
-        logger.info(f'eval_interval: {params.eval_interval}')
     if 'eval_iters' in request.json:
         params.eval_iters = request.json['eval_iters']
-        logger.info(f'eval_iters: {params.eval_iters}')
 
     logger.log(SUMMARY, 'Model training in progress...')
     model.begin_train()

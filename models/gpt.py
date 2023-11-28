@@ -7,13 +7,12 @@ from .dataset import *
 from components.block import *
 from models.logger import *
 
-logger = configure_logger()
-
 class GPTLanguageModel(nn.Module):
 
-    def __init__(self, params: Hyperparameters, dataset: Dataset):
+    def __init__(self, logger, params: Hyperparameters, dataset: Dataset):
         super().__init__()
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.logger = logger
         self.params = params
         self.dataset = dataset
 
@@ -59,14 +58,18 @@ class GPTLanguageModel(nn.Module):
     
     def begin_train(self):
         start_time = time.time()
+        self.logger.log(SUMMARY, f"num_batch: {self.params.num_batch}, " +
+                        f"eval_interval: {self.params.eval_interval}, " +
+                        f"eval_iters: {self.params.eval_iters}")
+
         for iter in range(self.params.num_batch):
 
             # every once in a while evaluate the loss on train and val sets
-            if iter % self.params.eval_interval == 0:
+            if iter % self.params.eval_interval == 0 or iter == self.params.num_batch - 1:
                 losses = self.estimate_loss()
                 elapsed_time = time.time() - start_time
                 elapsed_time_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-                logger.log(SUMMARY, f"step {iter}: train loss {losses['train']:.4f}, " +
+                self.logger.log(SUMMARY, f"step {iter}: train loss {losses['train']:.4f}, " +
                            f"val loss {losses['val']:.4f}, time {elapsed_time_str}")
 
             # sample a batch of data
@@ -77,6 +80,9 @@ class GPTLanguageModel(nn.Module):
             self.optimizer.zero_grad(set_to_none=True)
             loss.backward()
             self.optimizer.step()
+        
+        losses = self.estimate_loss(True)
+        self.logger.log(SUMMARY, f"final: test loss {losses['test']:.4f}")
 
     @torch.no_grad()
     def estimate_loss(self, test=False):
