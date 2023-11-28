@@ -17,7 +17,7 @@ class Hyperparameters():
         # Load params
         with open(params_path, 'r') as f:
             params = json.load(f)
-        self.params = params
+        self.file_params = params
         
         # Load data sources
         with open(data_sources_path, 'r') as f:
@@ -26,7 +26,6 @@ class Hyperparameters():
         self.device = torch.device(cuda if torch.cuda.is_available() else cpu)
         self.torch_seed = params[torch_seed]
         torch.manual_seed(self.torch_seed)
-        self.logger.info(f'device: {self.device}, torch_seed: {self.torch_seed}')
 
         self.name = params[name]
         self.data_source = params[data_source]

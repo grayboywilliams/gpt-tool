@@ -20,19 +20,21 @@ def load_model_route():
 
     if name not in request.json:
         return jsonify({'status': 'Error: Missing required parameter "name".'})
-    name = request.json[name]
+    model_name = request.json[name]
 
-    status, params, dataset, model = load_model(logger, name, True)
+    status, params, dataset, model = load_model(logger, model_name, True)
+    logger.info(status)
     return jsonify({'status': status})
 
 # Save model
 @app.route('/save_model', methods=[GET])
 def save_model_route():
-    name = params.name
+    model_name = params.name
     if name in request.json:
-        name = request.json[name]
+        model_name = request.json[name]
 
-    status = save_model(model, params, name)
+    status = save_model(model, params, model_name)
+    logger.info(status)
     return jsonify({'status': status})
 
 # Update config
@@ -103,4 +105,5 @@ def complete_prompt():
     return jsonify({'completion': output})
 
 if __name__ == '__main__':
+    _, params, dataset, model = load_model(logger)
     app.run(host=host, port=port)

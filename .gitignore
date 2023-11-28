@@ -2,3 +2,6 @@ __pycache__/*
 *.pyc
 
 training_data/*
+
+checkpoints/temp/summary.log
+checkpoings/temp/weights.pth
