@@ -3,7 +3,7 @@ from models.params import *
 from models.dataset import *
 
 class FeedFoward(nn.Module):
-    """ a simple linear layer followed by a non-linearity """
+    """ Simple linear layer followed by a non-linearity """
 
     def __init__(self, params: Hyperparameters):
         super().__init__()

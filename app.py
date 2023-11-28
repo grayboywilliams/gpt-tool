@@ -27,8 +27,8 @@ def train_model():
         params.num_batch = request.json[num_batch]
     if eval_interval in request.json:
         params.eval_interval = request.json[eval_interval]
-    if eval_iters in request.json:
-        params.eval_iters = request.json[eval_iters]
+    if eval_size in request.json:
+        params.eval_size = request.json[eval_size]
 
     logger.log(SUMMARY, 'Model training in progress...')
     model.begin_train()
@@ -84,7 +84,7 @@ def complete_prompt():
 # Evaluate
 @app.route('/evaluate', methods=[GET])
 def evaluate_model():
-    losses = model.estimate_loss(True)
+    losses = model.estimate_loss()
     return jsonify({'loss': float(f"{losses[test]:.4f}")})
 
 # Save parameters

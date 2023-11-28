@@ -13,7 +13,7 @@
     
     "num_batch": 5000,
     "eval_interval": 100,
-    "eval_iters": 50,
+    "eval_size": 50,
     "val_split": 0.1,
     "test_split": 0.1,
     

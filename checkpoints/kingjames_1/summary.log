@@ -1,5 +1,5 @@
 2023-11-27 21:04:10,986 - Model training in progress...
-2023-11-27 21:04:10,986 - num_batch: 100, eval_interval: 100, eval_iters: 50
+2023-11-27 21:04:10,986 - num_batch: 100, eval_interval: 100, eval_size: 50
 2023-11-27 21:04:23,552 - step 0: train loss 1.2700, val loss 1.3446, time 00:00:12
 2023-11-27 21:05:05,779 - step 99: train loss 1.2693, val loss 1.3696, time 00:00:54
 2023-11-27 21:05:12,063 - final: test loss 1.5754

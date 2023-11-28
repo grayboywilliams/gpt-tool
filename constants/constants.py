@@ -20,7 +20,7 @@ dropout = 'dropout'
 learning_rate = 'learning_rate'
 num_batch = 'num_batch'
 eval_interval = 'eval_interval'
-eval_iters = 'eval_iters'
+eval_size = 'eval_size'
 val_split = 'val_split'
 test_split = 'test_split'
 

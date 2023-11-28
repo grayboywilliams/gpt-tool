@@ -10,6 +10,7 @@ from models.logger import *
 from constants.constants import *
 
 class GPTLanguageModel(nn.Module):
+    """ GPT language model """
 
     def __init__(self, logger: Logger, params: Hyperparameters, dataset: Dataset):
         super().__init__()
@@ -18,55 +19,54 @@ class GPTLanguageModel(nn.Module):
         self.dataset = dataset
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
 
-        # each token directly reads off the logits for the next token from a lookup table
-        self.token_embedding_table = nn.Embedding(self.dataset.vocab_size, self.params.num_dim)
-        self.position_embedding_table = nn.Embedding(params.ctx_length, self.params.num_dim)
+        self.token_embedding = nn.Embedding(self.dataset.vocab_size, self.params.num_dim)
+        self.position_embedding = nn.Embedding(params.ctx_length, self.params.num_dim)
         self.blocks = nn.Sequential(*[Block(self.params) for _ in range(self.params.num_layer)])
-        self.ln_f = nn.LayerNorm(self.params.num_dim) # final layer norm
-        self.lm_head = nn.Linear(self.params.num_dim, self.dataset.vocab_size)
+        self.layernorm = nn.LayerNorm(self.params.num_dim)
+        self.linear = nn.Linear(self.params.num_dim, self.dataset.vocab_size)
         self.apply(self._init_weights)
         
         self.optimizer = torch.optim.AdamW(self.parameters(), lr=self.params.learning_rate)
         self.to(self.params.device)
 
     def _init_weights(self, module):
-        if isinstance(module, nn.Linear):
+        if isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+        elif isinstance(module, nn.Linear):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
             if module.bias is not None:
                 torch.nn.init.zeros_(module.bias)
-        elif isinstance(module, nn.Embedding):
-            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def forward(self, idx, targets=None):
-        _,T = idx.shape
+    def forward(self, inputs, targets=None):
+        _,T = inputs.shape
 
-        # idx and targets are both (B,T) tensor of integers
-        token_emb = self.token_embedding_table(idx) # (B,T,C)
-        pos_emb = self.position_embedding_table(torch.arange(T, device=self.params.device)) # (T,C)
+        # inputs and targets are both (B,T) tensor of integers
+        token_emb = self.token_embedding(inputs) # (B,T,C)
+        pos_emb = self.position_embedding(torch.arange(T, device=self.params.device)) # (T,C)
         x = token_emb + pos_emb # (B,T,C)
         x = self.blocks(x) # (B,T,C)
-        x = self.ln_f(x) # (B,T,C)
-        logits = self.lm_head(x) # (B,T,vocab_size)
+        x = self.layernorm(x) # (B,T,C)
+        logits = self.linear(x) # (B,T,vocab_size)
 
         if targets is None:
-            loss = None
+            loss = None # is inference
         else:
             B,T,C = logits.shape
             logits = logits.view(B*T, C)
             targets = targets.view(B*T)
-            loss = F.cross_entropy(logits, targets) # does softmax multinomial internally
+            loss = F.cross_entropy(logits, targets) # does softmax multinomial to logits internally
 
         return logits, loss
     
     def begin_train(self):
+        self.train()
         start_time = time.time()
         self.logger.log(SUMMARY, f"num_batch: {self.params.num_batch}, " +
                         f"eval_interval: {self.params.eval_interval}, " +
-                        f"eval_iters: {self.params.eval_iters}")
+                        f"eval_size: {self.params.eval_size}")
 
         for iter in range(self.params.num_batch):
-
-            # every once in a while evaluate the loss on train and val sets
+            # every eval_interval steps evaluate the loss on train and val sets
             if iter % self.params.eval_interval == 0 or iter == self.params.num_batch - 1:
                 losses = self.estimate_loss()
                 elapsed_time = time.time() - start_time
@@ -75,64 +75,65 @@ class GPTLanguageModel(nn.Module):
                            f"val loss {losses[val]:.4f}, time {elapsed_time_str}")
 
             # sample a batch of data
-            xb, yb = self.dataset.get_batch('train')
+            inputs, targets = self.dataset.get_batch('train')
 
             # evaluate the loss
-            _, loss = self(xb, yb)
-            self.optimizer.zero_grad(set_to_none=True)
-            loss.backward()
-            self.optimizer.step()
+            _, loss = self(inputs, targets)
+
+            # backpropogate the loss
+            self.optimizer.zero_grad(set_to_none=True) # reset gradients
+            loss.backward() # compute gradients
+            self.optimizer.step() # update params
         
-        losses = self.estimate_loss(True)
+        losses = self.estimate_loss()
         self.logger.log(SUMMARY, f"final: test loss {losses[test]:.4f}")
 
     @torch.no_grad()
-    def estimate_loss(self, test=False):
+    def estimate_loss(self):
+        mode = self.training
+        self.eval()
+
         out = {}
-        stages = [train, val] if test == False else [test]
-        for stage in stages:
-            losses = torch.zeros(self.params.eval_iters)
-            for k in range(self.params.eval_iters):
-                X, Y = self.dataset.get_batch(stage)
-                _, loss = self(X, Y)
+        for stage in [train, val, test]:
+            # get eval_size losses and average them
+            losses = torch.zeros(self.params.eval_size)
+            for k in range(self.params.eval_size):
+                inputs, targets = self.dataset.get_batch(stage)
+                _, loss = self(inputs, targets)
                 losses[k] = loss.item()
             out[stage] = losses.mean()
-        self.train(False)
+
+        self.train(mode)
         return out
 
-    def generate(self, tokens, ctx=None, temp=1.0):
+    @torch.no_grad()
+    def generate(self, max_tokens, ctx=None, temp=1.0):
+        self.eval()
+
         if ctx is None:
             ctx = torch.zeros(
                 (1, 1),
                 dtype=torch.long,
                 device=self.params.device)
 
-        # ctx is (B, T) array of indices in the current context
-        for _ in range(tokens):
-            # crop ctx to the last ctx_length tokens
-            idx_cond = ctx[:, -self.params.ctx_length:]
-            # get the predictions
-            logits, _ = self(idx_cond)
-            # focus only on the last time step
-            logits = logits[:, -1, :] # becomes (B, C)
-            # apply temperature (>1 for more randomness, <1 for less randomness)
-            logits /= temp
-            # apply softmax to get probabilities
-            probs = F.softmax(logits, dim=-1) # (B, C)
-            # sample from the distribution
-            idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
-            # append sampled index to the running sequence
-            ctx = torch.cat((ctx, idx_next), dim=1) # (B, T+1)
+        for _ in range(max_tokens):
+            inputs = ctx[:, -self.params.ctx_length:] # crop ctx to the last ctx_length tokens
+            logits, _ = self(inputs) # get the predictions
+            logits = logits[:, -1, :] # get the last time steps
+            logits /= temp # apply temperature (>1 more random, <1 less random)
+            probs = F.softmax(logits, dim=-1) # apply softmax to get probabilities
+            preds = torch.multinomial(probs, num_samples=1) # sample predictions from the distribution
+            ctx = torch.cat((ctx, preds), dim=1) # append predictions to the running sequence
 
         return self.dataset.decode(ctx[0].tolist())
     
-    def complete(self, prompt, tokens, temp=1.0):
+    def complete(self, prompt, max_tokens, temp=1.0):
         ctx = torch.tensor(
             self.dataset.encode(prompt),
             dtype=torch.long,
             device=self.params.device).unsqueeze(0)
 
-        output = self.generate(tokens, ctx, temp)
+        output = self.generate(max_tokens, ctx, temp)
         return output[len(prompt):]
 
     def save_parameters(self, name=None):
@@ -150,8 +151,7 @@ class GPTLanguageModel(nn.Module):
     def load_parameters(self, name):
         try:
             filename = os.path.join(self.script_dir, '../checkpoints', name, 'checkpoint.pth')
-            self.load_state_dict(torch.load(filename))
-            self.eval()  # Set the model to evaluation mode after loading
+            self.load_state_dict(torch.load(filename)) # load weights
             return 'Model parameters loaded successfully.'
         except FileNotFoundError:
             return 'Model parameters file not found.'

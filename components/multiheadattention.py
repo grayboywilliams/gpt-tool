@@ -5,7 +5,7 @@ from models.dataset import *
 from .head import *
 
 class MultiHeadAttention(nn.Module):
-    """ multiple heads of self-attention in parallel """
+    """ Multiple heads of self-attention """
 
     def __init__(self, params: Hyperparameters):
         super().__init__()

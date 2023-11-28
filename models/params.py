@@ -48,7 +48,7 @@ class Hyperparameters():
 
         self.num_batch = config[num_batch]
         self.eval_interval = config[eval_interval]
-        self.eval_iters = config[eval_iters]
+        self.eval_size = config[eval_size]
         self.val_split = config[val_split]
         self.test_split = config[test_split]
 

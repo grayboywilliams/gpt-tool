@@ -5,7 +5,7 @@ from models.params import *
 from models.dataset import *
 
 class Head(nn.Module):
-    """ one head of self-attention """
+    """ Single head of self-attention """
 
     def __init__(self, params: Hyperparameters):
         super().__init__()
