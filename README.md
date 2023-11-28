@@ -21,9 +21,9 @@ To run the GPT Training Tool, follow these steps:
 
 Run the main script:
 
-    ```shell
-    python app.py
-    ```
+```shell
+python app.py
+```
 
 ### Endpoints
 
