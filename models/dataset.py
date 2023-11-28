@@ -1,10 +1,12 @@
 import torch
+from logging import Logger
 import urllib.request
 from .params import *
 from constants.constants import *
 
 class Dataset():
-    def __init__(self, params: Hyperparameters, get_data=False):
+    def __init__(self, logger: Logger, params: Hyperparameters, get_data=False):
+        self.logger = logger
         self.params = params
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.filename = os.path.join(script_dir, '../training_data', params.data_source + ".txt")

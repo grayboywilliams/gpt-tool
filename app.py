@@ -16,8 +16,8 @@ app = Flask(__name__)
 def init_model(checkpoint_name=None, get_data=False):
     reset_summary_log()
     global params, dataset, model
-    params = Hyperparameters(checkpoint_name)
-    dataset = Dataset(params, get_data)
+    params = Hyperparameters(logger, checkpoint_name)
+    dataset = Dataset(logger, params, get_data)
     model = GPTLanguageModel(logger, params, dataset)
 
 # Train

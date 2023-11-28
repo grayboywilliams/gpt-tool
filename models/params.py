@@ -1,10 +1,13 @@
 import json
+from logging import Logger
 import torch
 import os
 from constants.constants import *
+from models.logger import *
 
 class Hyperparameters():
-    def __init__(self, checkpoint_name=None):
+    def __init__(self, logger: Logger, checkpoint_name=None):
+        self.logger = logger
         script_dir = os.path.dirname(os.path.realpath(__file__))
 
         if checkpoint_name is not None:
@@ -27,6 +30,7 @@ class Hyperparameters():
         self.device = torch.device(cuda if torch.cuda.is_available() else cpu)
         self.torch_seed = config[torch_seed]
         torch.manual_seed(self.torch_seed)
+        self.logger.info(f'device: {self.device}, torch_seed: {self.torch_seed}')
 
         self.name = config[name]
         self.data_source = config[data_source]

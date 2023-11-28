@@ -1,3 +1,4 @@
+from logging import Logger
 import time
 import torch
 import torch.nn as nn
@@ -10,12 +11,12 @@ from constants.constants import *
 
 class GPTLanguageModel(nn.Module):
 
-    def __init__(self, logger, params: Hyperparameters, dataset: Dataset):
+    def __init__(self, logger: Logger, params: Hyperparameters, dataset: Dataset):
         super().__init__()
-        self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.logger = logger
         self.params = params
         self.dataset = dataset
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
 
         # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(self.dataset.vocab_size, self.params.num_dim)
