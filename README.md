@@ -38,3 +38,5 @@ The application exposes the following endpoints:
 - `\evaluate`: evaluates the current loss on the test data set
 - `\generate`: returns generation
 - `\complete`: returns completion from prompt
+
+A postman collection with all of these endpoints set up is stored in configs.
