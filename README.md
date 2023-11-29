@@ -2,7 +2,7 @@
 # GPT Training Tool
 
 This repository contains a GPT training tool adapted from Andrej Karpathy's [MiniGPT repository](https://github.com/karpathy/minGPT).
-The tool runs as an API and can build, train, test, store, and reload various GPT src.
+The tool runs as an API and can build, train, test, store, and reload various GPT models.
 
 ## Installation
 
