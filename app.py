@@ -10,46 +10,74 @@ params: Hyperparameters
 dataset: Dataset
 model: GPTLanguageModel
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
 logger = configure_logger()
 app = Flask(app_name)
 
+# New model
+@app.route('/new_model', methods=[POST])
+def new_model_route():
+    global params, dataset, model
+
+    if name_arg not in request.json:
+        return jsonify({'status': f'Error: Missing required parameter {name_arg}.'})
+    model_name = request.json[name_arg]
+
+    if os.path.exists(os.path.join(script_dir, checkpoints, model_name)):
+        return jsonify({'status': f'Error: Model {model_name} already exists.'})
+
+    status, ok = setup_params(request.json)
+    if not ok:
+        return jsonify({'status': status})
+
+    status, params, dataset, model = load_model(logger, model_name)
+    logger.info(status)
+    return jsonify({'status': f'Model {model_name} is ready to use.'})
+
 # Load model
-@app.route('/load_model', methods=[GET])
+@app.route('/load_model', methods=[POST])
 def load_model_route():
     global params, dataset, model
 
-    if name not in request.json:
+    if name_arg not in request.json:
         return jsonify({'status': 'Error: Missing required parameter "name".'})
-    model_name = request.json[name]
+    name = request.json[name_arg]
 
-    status, params, dataset, model = load_model(logger, model_name, True)
+    status, params, dataset, model = load_model(logger, name, None)
     logger.info(status)
     return jsonify({'status': status})
 
 # Save model
-@app.route('/save_model', methods=[GET])
+@app.route('/save_model', methods=[POST])
 def save_model_route():
-    model_name = params.name
-    if name in request.json:
-        model_name = request.json[name]
-
-    status = save_model(model, params, model_name)
+    status = save_model(model, params)
     logger.info(status)
     return jsonify({'status': status})
 
-# Update config
-@app.route('/update_config', methods=[POST])
-def update_config():
+# Get model
+@app.route('/get_model', methods=[GET])
+def get_model():
+    return jsonify({'model': params.name})
+
+# Get params
+@app.route('/get_params', methods=[GET])
+def get_params():
+    return jsonify({'params': params.file_params})
+
+# Update params
+@app.route('/update_params', methods=[POST])
+def update_params():
     for key in request.json:
         if key not in params.__dict__:
-            return jsonify({'status': 'Error: Invalid parameter.'})
+            return jsonify({'status': f'Error: Invalid parameter: {key}.'})
+        if not is_training_param(key):
+            return jsonify({'status': f'Error: Cannot change non-training parameters: {key}.'})
         
     for key in request.json:
         if key in params.__dict__:
             params.__dict__[key] = request.json[key]
-    
-    init_model(True) # re-initialize model
-    return jsonify({'status': 'Complete.'})
+
+    return jsonify({'status': 'Parameters updated.'})
 
 # Train
 @app.route('/train', methods=[POST])
@@ -76,8 +104,12 @@ def evaluate_model():
 @app.route('/generate', methods=[GET])
 def generate_text():
     length = 500
+    temp = 1.0
+
     if length in request.json:
-        length = request.json[length]        
+        length = request.json[length]   
+    if temp in request.json:
+        temp = request.json[temp]     
 
     output = model.generate(length)
     return jsonify({'generation': output})
@@ -89,21 +121,18 @@ def complete_prompt():
     length = 500
     temp = 1.0
 
-    if prompt in request.json:
-        if len(request.json[prompt]) > params.ctx_length:
+    if prompt_arg in request.json:
+        if len(request.json[prompt_arg]) > params.ctx_length:
             logger.info('Prompt exceeds context window. Only the last ' +
                         f"{params.ctx_length} characters will be used...")
-        prompt = request.json[prompt][-params.ctx_length:]
-    
-    if length in request.json:
-        length = request.json[length]
-        
-    if temp in request.json:
-        temp = request.json[temp]
+        prompt = request.json[prompt_arg][-params.ctx_length:]
+    if length_arg in request.json:
+        length = request.json[length_arg]
+    if temp_arg in request.json:
+        temp = request.json[temp_arg]
 
     output = model.complete(prompt, length, temp)
     return jsonify({'completion': output})
 
 if __name__ == '__main__':
-    _, params, dataset, model = load_model(logger)
     app.run(host=host, port=port)

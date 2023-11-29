@@ -28,10 +28,13 @@ python app.py
 ### Endpoints
 
 The application exposes the following endpoints:
+- `\new_model`: creates a new model using provided params
+- `\load_model`: loads the provided model from checkpoint
+- `\save_model`: saves the current model weights, hyperparameters, and logs
+- `\get_model`: gets the name of the currently loaded model
+- `\get_params`: gets the list of the currently loaded params
+- `\update_params`: patches the params file, currently only accepts training params
 - `\train`: trains the currently loaded model
-- `\update_config`: patches the config file (re-inits model)
+- `\evaluate`: evaluates the current loss on the test data set
 - `\generate`: returns generation
 - `\complete`: returns completion from prompt
-- `\evaluate`: evaluates the current loss on the test data set
-- `\save_parameters`: saves the current model weights, hyperparameters, and logs
-- `\load_parameters`: loads the model weights from checkpoint

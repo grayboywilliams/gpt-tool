@@ -1,36 +1,36 @@
+import json
 from src.params import *
 from src.dataset import *
 from src.gpt import *
 from src.logger import *
 from constants.constants import *
 
-def load_model(logger: Logger, name=None, download_data=False):
-    if name == None:
-        name = 'temp'
-    
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+def load_model(logger: Logger, cpt_name: str, params: Hyperparameters=None):
     reset_summary_log()
 
     try:
         # init model
-        params = Hyperparameters(logger, name)
-        dataset = Dataset(logger, params, download_data)
+        params = Hyperparameters(logger, cpt_name)
+        dataset = Dataset(logger, params)
         model = GPTLanguageModel(logger, params, dataset)
 
         # load weights
-        weights_path = os.path.join(script_dir, '../checkpoints', name, 'weights.pth')
+        weights_path = os.path.join(script_dir, checkpoints, cpt_name, 'weights.pth')
         if os.path.exists(weights_path):
             model.load_state_dict(torch.load(weights_path))
 
-        return f'Model "{name}" state loaded successfully.', params, dataset, model
+        return f'Model "{cpt_name}" state loaded successfully.', params, dataset, model
     except Exception as e:
-        return f'Model "{name}" failed to load: {e}', None, None, None
+        return f'Model "{cpt_name}" failed to load: {e}', None, None, None
 
-def save_model(model: GPTLanguageModel, params: Hyperparameters, name=None):
-    if name == None:
-        name = params.name
-
+def save_model(model: GPTLanguageModel, params: Hyperparameters):
     try:
-        checkpoint_path = os.path.join(script_dir, '../checkpoints', name)
+        cpt_name = params.name
+        checkpoint_path = os.path.join(script_dir, checkpoints, cpt_name)
+        if not os.path.exists(checkpoint_path):
+            os.makedirs(checkpoint_path)
 
         # save params
         params_path = os.path.join(checkpoint_path, 'params.json')
@@ -45,6 +45,22 @@ def save_model(model: GPTLanguageModel, params: Hyperparameters, name=None):
         weights_path = os.path.join(checkpoint_path, 'weights.pth')
         torch.save(model.state_dict(), weights_path)
 
-        return f'Model "{name}" state saved successfully.'
+        return f'Model "{cpt_name}" state saved successfully.'
     except Exception as e:
-        return f'Model "{name}" failed to save: {e}'
+        return f'Model "{cpt_name}" failed to save: {e}'
+
+def setup_params(params: dict):
+    # Load base params
+    new_model_params = load_params()
+
+    for key in params:
+        if key not in new_model_params:
+            return 'Error: Invalid parameter.', False
+        new_model_params[key] = params[key]
+
+    # Setup new params
+    os.makedirs(os.path.join(script_dir, checkpoints, params[name_arg]), exist_ok=True)
+    params_path = os.path.join(script_dir, checkpoints, params[name_arg], 'params.json')
+    with open(params_path, 'w') as f:
+        json.dump(new_model_params, f, indent=4)
+    return 'Setup params successfully.', True

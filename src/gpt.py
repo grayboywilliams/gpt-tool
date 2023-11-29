@@ -17,7 +17,6 @@ class GPTLanguageModel(nn.Module):
         self.logger = logger
         self.params = params
         self.dataset = dataset
-        self.script_dir = os.path.dirname(os.path.realpath(__file__))
 
         self.token_embedding = nn.Embedding(self.dataset.vocab_size, self.params.num_dim)
         self.position_embedding = nn.Embedding(params.ctx_length, self.params.num_dim)
@@ -74,8 +73,6 @@ class GPTLanguageModel(nn.Module):
                 self.logger.log(SUMMARY, f"step {iter}: train loss {losses[train]:.4f}, " +
                            f"val loss {losses[val]:.4f}, time {elapsed_time_str}")
 
-                self.save_parameters('temp')
-
             # sample a batch of data
             inputs, targets = self.dataset.get_batch('train')
 
@@ -130,10 +127,12 @@ class GPTLanguageModel(nn.Module):
         return self.dataset.decode(ctx[0].tolist())
     
     def complete(self, prompt, max_tokens, temp=1.0):
-        ctx = torch.tensor(
-            self.dataset.encode(prompt),
-            dtype=torch.long,
-            device=self.params.device).unsqueeze(0)
+        ctx = None
+        if prompt != '':
+            ctx = torch.tensor(
+                self.dataset.encode(prompt),
+                dtype=torch.long,
+                device=self.params.device).unsqueeze(0)
 
         output = self.generate(max_tokens, ctx, temp)
         return output[len(prompt):]

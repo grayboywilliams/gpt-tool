@@ -5,22 +5,22 @@ from .params import *
 from constants.constants import *
 
 class Dataset():
-    def __init__(self, logger: Logger, params: Hyperparameters, get_data=False):
+    def __init__(self, logger: Logger, params: Hyperparameters):
         self.logger = logger
         self.params = params
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.filename = os.path.join(script_dir, '../training_data', params.data_source + ".txt")
         self.source_url = params.training_data_url
 
-        self.data = self.get_data(get_data)
+        self.data = self.get_data()
         self.tokens = self.tokenize_data()
         self.vocab_size = len(self.tokens)
         self.encode = self.get_encoder()
         self.decode = self.get_decoder()
         self.train_data, self.val_data, self.test_data = self.split_data(self.params.val_split, self.params.test_split)
 
-    def get_data(self, get_data=False):
-        if get_data or os.path.isfile(self.filename) == False:
+    def get_data(self):
+        if os.path.isfile(self.filename) == False:
             urllib.request.urlretrieve(self.source_url, self.filename)
         with open(self.filename, 'r', encoding='utf-8') as f:
             data = f.read()

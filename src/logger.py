@@ -42,13 +42,13 @@ def configure_logger():
 def reset_summary_log():
     open(file_path, 'w').close()
 
-def save_summary_log(name):
-    os.makedirs(os.path.dirname(name), exist_ok=True)
+def save_summary_log(cpt_name: str):
+    os.makedirs(os.path.dirname(cpt_name), exist_ok=True)
 
     with open(file_path, "r") as source_file:
         source_contents = source_file.read()
 
-    with open(name, "a") as destination_file:
+    with open(cpt_name, "a") as destination_file:
         destination_file.write(source_contents)
 
     reset_summary_log()

@@ -30,9 +30,10 @@ cuda = 'cuda'
 cpu = 'cpu'
 
 # request args
-prompt = 'prompt'
-length = 'length'
-temp = 'temp'
+name_arg = 'name'
+prompt_arg = 'prompt'
+length_arg = 'length'
+temp_arg = 'temp'
 
 # data sets
 train = 'train'
@@ -42,3 +43,8 @@ test = 'test'
 # http methods
 POST = 'POST'
 GET = 'GET'
+
+# directories
+checkpoints = '../checkpoints'
+configs = '../configs'
+temp = 'temp'
