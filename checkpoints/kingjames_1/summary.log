@@ -54,4 +54,5 @@
 2023-11-29 21:53:11,815 - final: test loss 1.7779
 2023-11-29 21:53:11,816 - tokens observed: 5120000
 2023-11-29 21:53:11,816 - tokens predicted: 160000
+2023-11-29 21:53:11,816 - effective epochs: 1.15
 2023-11-29 21:53:11,817 - Model training complete.

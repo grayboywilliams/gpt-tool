@@ -13,6 +13,7 @@ class Dataset():
         self.source_url = params.training_data_url
 
         self.data = self.get_data()
+        self.data_size = len(self.data)
         self.tokens = self.tokenize_data()
         self.vocab_size = len(self.tokens)
         self.encode = self.get_encoder()

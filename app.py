@@ -30,10 +30,9 @@ def new_model_route():
     if not ok:
         return jsonify({'status': status})
 
-    draw_model(model)
-
     status, params, dataset, model = load_model(logger, model_name)
     logger.info(status)
+    draw_model(model)
     return jsonify({'status': f'Model {model_name} is ready to use.'})
 
 # Load model

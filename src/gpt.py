@@ -85,9 +85,12 @@ class GPTLanguageModel(nn.Module):
             self.optimizer.step() # update params
         
         losses = self.estimate_loss()
+        preds = self.params.num_batch * self.params.batch_size
+        
         self.logger.log(SUMMARY, f"final: test loss {losses[test]:.4f}")
-        self.logger.log(SUMMARY, f"tokens observed: {self.params.num_batch * self.params.batch_size * self.params.ctx_length}")
-        self.logger.log(SUMMARY, f"tokens predicted: {self.params.num_batch * self.params.batch_size}")
+        self.logger.log(SUMMARY, f"tokens observed: {preds * self.params.ctx_length}")
+        self.logger.log(SUMMARY, f"tokens predicted: {preds}")
+        self.logger.log(SUMMARY, f"effective epochs: {preds * self.params.ctx_length / self.dataset.data_size:.2f}")
 
     @torch.no_grad()
     def estimate_loss(self):
