@@ -1,16 +1,16 @@
 
 # GPT Training Tool
 
-This repository contains a GPT training tool adapted from Andrej Karpathy's [MiniGPT repository](https://github.com/karpathy/minGPT).
+This repository contains a GPT Training Tool adapted from Andrej Karpathy's [MiniGPT repository](https://github.com/karpathy/minGPT).
 The tool runs as an API and can build, train, test, store, and reload various GPT models.
+It will also generate a graph of your model architecture and provide a summary of its size.
 
 ## Installation
 
-Before using the GPT Training Tool, make sure to install the required packages by running the following commands:
+Before using the GPT Training Tool, make sure to install the required packages:
 
 ```shell
-pip install torch
-pip install flask
+pip install -r requirements.txt
 ```
 
 ## Usage
