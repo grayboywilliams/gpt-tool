@@ -32,6 +32,7 @@ The application exposes the following endpoints:
 - `\load_model`: loads the provided model from checkpoint
 - `\save_model`: saves the current model weights, hyperparameters, and logs
 - `\get_model`: gets the name of the currently loaded model
+- `\view_model`: shows a summary of the model size
 - `\get_params`: gets the list of the currently loaded params
 - `\update_params`: patches the params file, currently only accepts training params
 - `\train`: trains the currently loaded model
