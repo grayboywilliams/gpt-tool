@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6e5d91cf-5b69-48f6-8a76-dea2639c7f7d",
+		"_postman_id": "4a88c693-f132-4788-bd24-4d4c33fc9b71",
 		"name": "GPT Tool",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "14840981"
@@ -34,7 +34,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"kingjames_1\"\r\n}"
+					"raw": "{\r\n    \"name\": \"kingjames_2\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/load_model",
@@ -233,6 +233,53 @@
 			"response": []
 		},
 		{
+			"name": "view_model",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "Bearer {{OPENAI_API_KEY}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5000/view_summary",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"view_summary"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "update_params",
 			"request": {
 				"auth": {
@@ -260,7 +307,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"num_batch\": 100,\r\n    \"eval_interval\": 50,\r\n    \"eval_size\": 10\r\n}"
+					"raw": "{\r\n    \"num_batch\": 5000,\r\n    \"eval_interval\": 100,\r\n    \"eval_size\": 50\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/update_params",
@@ -304,7 +351,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"num_batch\": 100,\r\n    \"eval_interval\": 50,\r\n    \"eval_iters\": 10\r\n}"
+					"raw": "{}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/train",
