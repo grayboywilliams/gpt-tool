@@ -30,6 +30,8 @@ def new_model_route():
     if not ok:
         return jsonify({'status': status})
 
+    draw_model(model)
+
     status, params, dataset, model = load_model(logger, model_name)
     logger.info(status)
     return jsonify({'status': f'Model {model_name} is ready to use.'})
@@ -58,6 +60,12 @@ def save_model_route():
 @app.route('/get_model', methods=[GET])
 def get_model():
     return jsonify({'model': params.name})
+
+# View model
+@app.route('/view_summary', methods=[GET])
+def summarize_params():
+    summary = model_summary(model)
+    return jsonify({'summary': summary})
 
 # Get params
 @app.route('/get_params', methods=[GET])

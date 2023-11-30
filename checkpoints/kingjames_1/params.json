@@ -1,8 +1,8 @@
 {
     "name": "kingjames_1",
     "data_source": "kingjames",
-    "ctx_length": 128,
-    "batch_size": 50,
+    "ctx_length": 32,
+    "batch_size": 32,
     "num_dim": 30,
     "num_head": 6,
     "num_layer": 6,
