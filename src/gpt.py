@@ -86,6 +86,8 @@ class GPTLanguageModel(nn.Module):
         
         losses = self.estimate_loss()
         self.logger.log(SUMMARY, f"final: test loss {losses[test]:.4f}")
+        self.logger.log(SUMMARY, f"tokens observed: {self.params.num_batch * self.params.batch_size * self.params.ctx_length}")
+        self.logger.log(SUMMARY, f"tokens predicted: {self.params.num_batch * self.params.batch_size}")
 
     @torch.no_grad()
     def estimate_loss(self):

@@ -102,4 +102,6 @@
 2023-11-30 07:18:30,397 - step 9900: train loss 1.0042, val loss 1.1712, time 09:17:04
 2023-11-30 07:24:01,371 - step 9999: train loss 1.0032, val loss 1.1715, time 09:22:35
 2023-11-30 07:26:04,979 - final: test loss 1.3650
+2023-11-30 07:26:04,980 - tokens observed: 163840000
+2023-11-30 07:26:04,980 - tokens predicted: 640000
 2023-11-30 07:26:04,981 - Model training complete.

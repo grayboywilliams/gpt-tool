@@ -1,12 +1,8 @@
-2023-11-27 20:44:09,805 - Model training in progress...
-2023-11-27 20:44:10,820 - step 0: train loss 2.4154, val loss 2.4724, time 00:00:01
-2023-11-27 20:44:14,703 - Model training complete.
-2023-11-27 20:44:38,683 - Model training in progress...
-2023-11-27 20:44:39,672 - step 0: train loss 2.4316, val loss 2.4444, time 00:00:00
-2023-11-27 20:44:43,387 - Model training complete.
 2023-11-27 20:58:21,231 - Model training in progress...
 2023-11-27 20:58:21,231 - num_batch: 100, eval_interval: 100, eval_size: 50
 2023-11-27 20:58:22,297 - step 0: train loss 2.3260, val loss 2.3640, time 00:00:01
 2023-11-27 20:58:27,020 - step 99: train loss 2.4091, val loss 2.4216, time 00:00:05
 2023-11-27 20:58:27,551 - final: test loss 2.4875
+2023-11-27 20:58:27,552 - tokens observed: 6400
+2023-11-27 20:58:27,552 - tokens predicted: 800
 2023-11-27 20:58:27,553 - Model training complete.
