@@ -9,16 +9,15 @@ data_source = 'data_source'
 
 # architecture params
 ctx_length = 'ctx_length'
-batch_size = 'batch_size'
 num_dim = 'num_dim'
 num_head = 'num_head'
 num_layer = 'num_layer'
-head_size = 'head_size'
 
 # training
-dropout = 'dropout'
-learning_rate = 'learning_rate'
+batch_size = 'batch_size'
 num_batch = 'num_batch'
+learning_rate = 'learning_rate'
+dropout = 'dropout'
 eval_interval = 'eval_interval'
 eval_size = 'eval_size'
 val_split = 'val_split'

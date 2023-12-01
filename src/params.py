@@ -25,16 +25,15 @@ class Hyperparameters():
 
         # architecture params
         self.ctx_length = params[ctx_length]
-        self.batch_size = params[batch_size]
         self.num_dim = params[num_dim]
         self.num_head = params[num_head]
         self.num_layer = params[num_layer]
-        self.head_size = self.num_dim // self.num_head
 
         # training
-        self.dropout = params[dropout]
-        self.learning_rate = params[learning_rate]
+        self.batch_size = params[batch_size]
         self.num_batch = params[num_batch]
+        self.learning_rate = params[learning_rate]
+        self.dropout = params[dropout]
         self.eval_interval = params[eval_interval]
         self.eval_size = params[eval_size]
         self.val_split = params[val_split]
@@ -42,9 +41,10 @@ class Hyperparameters():
 
 def is_training_param(key):
     return key in [
-        dropout,
-        learning_rate,
+        batch_size,
         num_batch,
+        learning_rate,
+        dropout,
         eval_interval,
         eval_size,
         val_split,

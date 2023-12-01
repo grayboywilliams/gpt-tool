@@ -9,9 +9,10 @@ class Head(nn.Module):
 
     def __init__(self, params: Hyperparameters):
         super().__init__()
-        self.key = nn.Linear(params.num_dim, params.head_size, bias=False)
-        self.query = nn.Linear(params.num_dim, params.head_size, bias=False)
-        self.value = nn.Linear(params.num_dim, params.head_size, bias=False)
+        head_size = params.num_dim // params.num_head
+        self.key = nn.Linear(params.num_dim, head_size, bias=False)
+        self.query = nn.Linear(params.num_dim, head_size, bias=False)
+        self.value = nn.Linear(params.num_dim, head_size, bias=False)
         self.register_buffer('tril', torch.tril(torch.ones(params.ctx_length, params.ctx_length)))
         self.dropout = nn.Dropout(params.dropout)
         self.to(params.device)
