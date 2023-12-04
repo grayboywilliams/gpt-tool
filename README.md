@@ -4,6 +4,7 @@
 This repository contains a GPT Training Tool adapted from Andrej Karpathy's [MiniGPT repository](https://github.com/karpathy/minGPT).
 The tool runs as an API and can build, train, test, store, and reload various GPT models.
 It will also generate a graph of your model architecture and provide a summary of its size.
+Note: Currently it is equipped to learn character encodings, but it can be easily updated to learn subword encodings.
 
 ## Installation
 
